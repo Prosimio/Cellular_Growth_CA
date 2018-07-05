@@ -256,15 +256,35 @@ def plasmid_gProb(g_ratio=[1,1], p_types = [1,2]):
     
 def plasm_g_test(plasmids,probs):
         #perform the probability test
-    rand_val = np.random.rand(1)
-    pos = np.where( (probs > rand_val) == True )[0][0]
-    
-    ptype = pos + 1
-    found = np.where(plasmids == ptype)[0]
+    rand_val = np.random.rand(1)    #random value
     growth = False
     
-    if found.size>0:
-        growth = True
+    ptypes = np.unique(plasmids[np.where(plasmids>0)]) #plasmid types in the vector
+    
+    if ptypes.size == 1:  #if has one type of plasmid
+        
+        #determine the first position > random value
+        pos = np.where( (probs > rand_val) == True )[0][0]
+        
+        growth_type = pos + 1  #to transform position to the corresponding plasmid type
+        #found = np.where(plasmids == ptype)[0]
+        
+        
+        #ptotal = np.where(plasmids > 0)[0]  #total num plasmids
+        #pdif =  ptotal.size - found.size  
+        
+        if growth_type == ptypes:
+            growth = True
+        #if found.size>0:
+        
+    else:       #if has more than one type of plasmid
+        
+        mean_prob = probs[-1]/probs.size  #mean plasmid probability
+        
+        if rand_val < mean_prob:
+            growth = True
+        
+        
     return(growth)
 
 def cell_ratio(plasmgrid, ptype = [1,2]):

@@ -9,7 +9,17 @@ import numpy as np
 import matplotlib.pyplot as plt
 import time
 import sys
+import pickle as pkl
 import cgca_functions as cgca
+
+def load_obj(name, folder ):
+    with open(folder+'/' + name + '.pkl', 'rb') as f:
+        return pkl.load(f)
+
+def save_obj(obj, name, folder ):
+    with open(folder+'/'+ name + '.pkl', 'wb') as f:
+        pkl.dump(obj, f, pkl.HIGHEST_PROTOCOL)
+
 
 def main():
     #sys.argv[1] = grid size value   e.g. 200
@@ -20,24 +30,34 @@ def main():
     #(in the future will be better to use a file with them as input)
     
     grid_size = 150
-    sim_num = 1
+    sim_num = 2
     steps = 15000
+    g_ratio= [1,1]
+    
+    #g_ratio= [1,1] 
+    # g_ratio = [2,1] --> plasmid 1 divide twice fast than plasmid 2
     
     if len(sys.argv) > 1:
-        grid_size = sys.argv[1]
+        grid_size = int(sys.argv[1])
     else:
         grid_size = int(input("Please enter value of grid size (it will be size [n,n]): n="))
     
     if len(sys.argv) > 2:
-        sim_num = sys.argv[2]
+        sim_num = int(sys.argv[2])
     else:
         sim_num = int(input("Please enter the number of simulations: "))
         
     if len(sys.argv) > 3:
-        steps  = sys.argv[3]
+        steps  = int(sys.argv[3])
     else:
         steps  = int(input("Please enter the number of steps per simulation: "))
     
+    if len(sys.argv) > 4:
+        input_ratios = sys.argv[4].split(':')
+        
+        for i in range(len(input_ratios)):
+            g_ratio[i]  = int(input_ratios[i])
+     
     ######################################
     ###  OTHER THINGS SET BY THE USER  ###
 
@@ -45,7 +65,7 @@ def main():
     
     #to save the last figure
 #    filename = 'Segregation\\ratios\\image_%03d.jpg'
-    save_im_final = True  #put True to save them
+    save_im_final = False  #put True to save them
     filename_j = 'finalSatate_%04d.jpg'
     
     
@@ -57,7 +77,7 @@ def main():
     #####################################        
     
     all_ratios = []
-    
+    #save_obj(all_ratios, 'ratios', 'data') #data: folder , ratios = filename
     
     if save_im_final == True or save_im_step == True:
         plt.figure()
@@ -73,9 +93,6 @@ def main():
         ###  OTHER THINGS SET BY THE USER  ###
         
         initial_pattern_choise =  1
-        g_ratio= [1,1] 
-        # g_ratio = [2,1] --> plasmid 1 divide twice fast than plasmid 2
-
         
         #####################################
         
@@ -84,8 +101,8 @@ def main():
     
         # define the initial grid and plasmid pattern
         grid = cgca.initial_pattern(grid, initial_pattern_choise)
-        plasm_grid = cgca.initial_plasmids(grid)
-    
+        #plasm_grid = cgca.initial_plasmids(grid) 
+        plasm_grid = cgca.initial_plasmids(grid, pattern_num = 0, num_plas = 2, max_copy = 4) 
         # Uncoment Show the initial state
     #    plt.figure(2)
     #    im_grid = create_image(grid, plasm_grid)
@@ -164,7 +181,13 @@ def main():
         
         elapsed = time.clock() - time1
         print('elapsed time: ' + str(elapsed)+ ' sec')
-    return(all_ratios)
+        #print(all_ratios)
+    
+    #return(all_ratios)
+
+    save_obj(all_ratios, 'ratios', 'data')
+    
+    return()
   
 if __name__== "__main__":
   main()
